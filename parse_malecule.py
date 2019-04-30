@@ -48,34 +48,44 @@ def counterize(tokens):
                         bracket_counter += last
                     last = stack.pop()
             else:
-                bracket_counter = last
+                for i in range(token):
+                    bracket_counter += last
 
             if not stack:
                 yield bracket_counter
-                break
             else:
                 stack.append(bracket_counter)
 
-        elif token == '(':
-            stack.append('(')
-        elif token == ')':
-            stack.append(')')
+        elif token in ['(', ')']:
+            stack.append(token)
         # atom
         else:
             stack.append(Counter({token: 1}))
 
+    for counter in stack:
+        if isinstance(counter, Counter):
+            yield counter
+
+
+def summorize(counters):
+    result = Counter()
+    for counter in counters:
+        result += counter
+    return result
+
 
 def parse_molecule(formula):
-    for token in tokenize(formula):
-        print(token)
-    # pass
+    return dict(summorize(counterize(tokenize(formula))))
 
 
 water = 'H2O'
-# parse_molecule(water)                 # return {H: 2, O: 1}
+print(parse_molecule(water))                 # return {H: 2, O: 1}
 
 magnesium_hydroxide = 'Mg(OH)2'
-# parse_molecule(magnesium_hydroxide)   # return {Mg: 1, O: 2, H: 2}
+print(parse_molecule(magnesium_hydroxide))   # return {Mg: 1, O: 2, H: 2}
 
 fremy_salt = 'K4[ON(SO3)2]2'
-# parse_molecule(fremy_salt)            # return {K: 4, O: 14, N: 2, S: 4}
+print(parse_molecule(fremy_salt))            # return {K: 4, O: 14, N: 2, S: 4}
+
+fremy_salt = 'K4[ON(SO3)2]'
+print(parse_molecule(fremy_salt))            # return {K: 4, O: 14, N: 2, S: 4}
