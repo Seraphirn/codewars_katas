@@ -13,7 +13,8 @@
 from dataclasses import dataclass
 from typing import List
 from structures.base import State, Action, Problem, Sucessor
-from structures.searches import TreeSearch
+from structures.searches.tree import TreeSearchInterface, WideSearchMixin, \
+    SimpleExpandMixin
 
 # from time import sleep
 
@@ -168,6 +169,10 @@ class MissionariesAliveProblem(Problem):
         return [
             s for s in possible_sucessors if s.state in self.state_space
         ]
+
+
+class TreeSearch(WideSearchMixin, SimpleExpandMixin, TreeSearchInterface, ):
+    pass
 
 
 p = MissionariesAliveProblem(kannibals=3, missionaries=3)

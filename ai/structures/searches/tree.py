@@ -1,12 +1,8 @@
-from .base import Problem, Solution, Node
-
-import logging
-logging.basicConfig(format='"%(asctime)s:%(levelname)s:%(name)s:%(message)s"',
-                    level=logging.INFO)
-LOG = logging.getLogger('39')
+from abc import ABC, abstractmethod
+from ..base import Problem, Solution, Node
 
 
-class TreeSearch():
+class TreeSearchInterface(ABC):
     def __init__(self, problem: Problem, fringe: list = [],
                  *, logger: object):
         self.problem = problem
@@ -27,11 +23,26 @@ class TreeSearch():
         while True:
             if not self.fringe:
                 raise Exception('No solution')
-            node = self.fringe.pop(0)
+            node = self._popNodeFromFringeToExpand()
             if self.problem.isGoalReachedForState(node.state):
                 return node.solution
             self.fringe += self._expand(node)
 
+    @abstractmethod
+    def _popNodeFromFringeToExpand(self):
+        pass
+
+    @abstractmethod
+    def _expand(self, node: Node):
+        pass
+
+
+class WideSearchMixin():
+    def _popNodeFromFringeToExpand(self):
+        return self.fringe.pop(0)
+
+
+class SimpleExpandMixin():
     def _expand(self, node: Node):
         self.logger.info(f'Exp: {node.state}, dep={node.depth}')
         # sleep(0.1)
