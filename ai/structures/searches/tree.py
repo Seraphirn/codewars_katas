@@ -1,8 +1,15 @@
 from abc import ABC, abstractmethod
 from ..base import Problem, Solution, Node
+# from time import sleep
 
+class InheritMixinMetaClass(type):
+    def __new__(cls, name, bases, dct):
+        return super().__new__(cls, name, bases[1:] + [bases[0], ], dct)
+        # return type.__new__(cls, name, bases, dct)
 
+# class TreeSearchInterface(ABC, metaclass=InheritMixinMetaClass):
 class TreeSearchInterface(ABC):
+
     def __init__(self, problem: Problem, fringe: list = [],
                  *, logger: object):
         self.problem = problem
@@ -45,7 +52,6 @@ class WideSearchMixin():
 class SimpleExpandMixin():
     def _expand(self, node: Node):
         self.logger.info(f'Exp: {node.state}, dep={node.depth}')
-        # sleep(0.1)
         result = []
         sucessors = self.problem.sucessorFunction(node.state)
         for s in sucessors:

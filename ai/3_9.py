@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import List
 from structures.base import State, Action, Problem, Sucessor
 from structures.searches.tree import TreeSearchInterface, WideSearchMixin, \
-    SimpleExpandMixin
+    SimpleExpandMixin, InheritMixinMetaClass
 
 # from time import sleep
 
@@ -171,7 +171,8 @@ class MissionariesAliveProblem(Problem):
         ]
 
 
-class TreeSearch(WideSearchMixin, SimpleExpandMixin, TreeSearchInterface, ):
+# class TreeSearch(TreeSearchInterface, WideSearchMixin, SimpleExpandMixin):
+class TreeSearch(WideSearchMixin, SimpleExpandMixin, TreeSearchInterface):
     pass
 
 
