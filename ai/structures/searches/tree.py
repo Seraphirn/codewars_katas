@@ -1,14 +1,8 @@
-from abc import ABC, abstractmethod
 from ..base import Problem, Solution, Node
 # from time import sleep
 
-class InheritMixinMetaClass(type):
-    def __new__(cls, name, bases, dct):
-        return super().__new__(cls, name, bases[1:] + [bases[0], ], dct)
-        # return type.__new__(cls, name, bases, dct)
 
-# class TreeSearchInterface(ABC, metaclass=InheritMixinMetaClass):
-class TreeSearchInterface(ABC):
+class WideTreeSearch():
 
     def __init__(self, problem: Problem, fringe: list = [],
                  *, logger: object):
@@ -35,23 +29,11 @@ class TreeSearchInterface(ABC):
                 return node.solution
             self.fringe += self._expand(node)
 
-    @abstractmethod
-    def _popNodeFromFringeToExpand(self):
-        pass
-
-    @abstractmethod
-    def _expand(self, node: Node):
-        pass
-
-
-class WideSearchMixin():
     def _popNodeFromFringeToExpand(self):
         return self.fringe.pop(0)
 
-
-class SimpleExpandMixin():
     def _expand(self, node: Node):
-        self.logger.info(f'Exp: {node.state}, dep={node.depth}')
+        self.logger.info(f'Expand: \n{node.state}, dep={node.depth}')
         result = []
         sucessors = self.problem.sucessorFunction(node.state)
         for s in sucessors:
@@ -65,3 +47,17 @@ class SimpleExpandMixin():
                 )
             )
         return result
+
+
+class DepthTreeSearch(WideTreeSearch):
+    def _popNodeFromFringeToExpand(self):
+        return self.fringe.pop()
+
+
+class LimitedDepthTreeSearch(DepthTreeSearch):
+    def __init__(self, max_depth: int, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.max_depth = max_depth
+
+    def _expand(self, node: Node):
+        return super()._expand(node) if node.depth < self.max_depth else []

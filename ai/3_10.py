@@ -14,8 +14,8 @@
 from dataclasses import dataclass
 from typing import List, Dict, Tuple
 from structures.base import State, Action, Problem, Sucessor
-from structures.searches.tree import TreeSearchInterface, WideSearchMixin, \
-    SimpleExpandMixin
+from structures.searches.tree import DepthTreeSearch, WideTreeSearch,\
+    LimitedDepthTreeSearch
 from copy import deepcopy
 
 # from time import sleep
@@ -38,7 +38,19 @@ class State8(State):
     """ состояние - поле 3 на 3 """
     field: Dict[Tuple[int, int], Card]
 
-    pass
+    def __str__(self):
+        result = ''
+        for i, c in enumerate(self.field.values()):
+            result += str(c.number) if c is not None else 'X'
+            result += '\n' if i % 3 == 2 else ','
+        return result[:-1]
+        # return '\n'.join(
+        #     ','.join(
+        #         str(c.number) if c is not None else 'X'
+        #         for c in self.field.values()[i:i+3]
+        #     )
+        #     for i in range(3)
+        # )
 
 
 @dataclass
@@ -106,8 +118,8 @@ class Problem8(Problem):
 
 
 # class TreeSearch(TreeSearchInterface, WideSearchMixin, SimpleExpandMixin):
-class TreeSearch(WideSearchMixin, SimpleExpandMixin, TreeSearchInterface):
-    pass
+# class TreeSearch(WideTreeSearch):
+#     pass
 
 
 initial_state = State8(field={
@@ -123,19 +135,19 @@ initial_state = State8(field={
 })
 
 target_state = State8(field={
-    (0, 0): Card(number=1),
-    (0, 1): Card(number=2),
-    (0, 2): None,
-    (1, 0): Card(number=4),
-    (1, 1): Card(number=5),
-    (1, 2): Card(number=3),
-    (2, 0): Card(number=7),
-    (2, 1): Card(number=8),
+    (0, 0): Card(number=2),
+    (0, 1): Card(number=4),
+    (0, 2): Card(number=3),
+    (1, 0): Card(number=7),
+    (1, 1): None,
+    (1, 2): Card(number=5),
+    (2, 0): Card(number=8),
+    (2, 1): Card(number=1),
     (2, 2): Card(number=6),
 })
-
+LOG.info(f'target_state=\n{target_state}')
 
 p = Problem8(initial_state=initial_state, target_state=target_state)
-ts = TreeSearch(problem=p, logger=LOG)
+ts = LimitedDepthTreeSearch(max_depth=10, problem=p, logger=LOG)
 
 print(ts.solution)
