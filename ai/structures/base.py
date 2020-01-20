@@ -56,6 +56,19 @@ class Problem:
 
 
 @dataclass
+class ProblemWithKnownTarget(Problem):
+    """
+    Задача, которую должен решить агент
+    """
+
+    target_state: State
+    """ Состояние окружающей среды на момент начала работы агента """
+
+    def isGoalReachedForState(self, state: State) -> bool:
+        return state == self.target_state
+
+
+@dataclass
 class Solution:
     """
     Описание решения задачи агентом
@@ -104,3 +117,14 @@ class Node:
         return Solution(path_cost=self.path_cost,
                         depth=self.depth,
                         actions=list(reversed(actions)))
+
+    @property
+    def state_path(self) -> Solution:
+        """ Получение решения для достижения этого узла из корневого """
+        result = []
+        node = self
+        while node is not None:
+            result.append(str(node.state))
+            node = node.parent_node
+
+        return result

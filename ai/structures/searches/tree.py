@@ -1,4 +1,4 @@
-from ..base import Problem, Solution, Node
+from ..base import Problem, Solution, Node, ProblemWithKnownTarget
 # from time import sleep
 
 
@@ -61,3 +61,59 @@ class LimitedDepthTreeSearch(DepthTreeSearch):
 
     def _expand(self, node: Node):
         return super()._expand(node) if node.depth < self.max_depth else []
+
+
+class TwoWayWideTreeSearch(WideTreeSearch):
+    def __init__(self,
+                 problem: ProblemWithKnownTarget,
+                 target_fringe: list = [],
+                 *args, **kwargs):
+        super().__init__(problem, *args, **kwargs)
+        self.target_fringe = target_fringe
+
+    def _popNodeFromTargetFringeToExpand(self):
+        return self.target_fringe.pop(0)
+
+    @property
+    def solution(self) -> Solution:
+        self.fringe.append(
+            Node(
+                state=self.problem.initial_state,
+                parent_node=None,
+                action=None,
+                path_cost=0,
+                depth=0
+            )
+        )
+        self.target_fringe.append(
+            Node(
+                state=self.problem.target_state,
+                parent_node=None,
+                action=None,
+                path_cost=0,
+                depth=0
+            )
+        )
+        # import pdb; pdb.set_trace()
+        while True:
+            if not self.fringe or not self.target_fringe:
+                raise Exception('No solution')
+            node = self._popNodeFromFringeToExpand()
+            node2 = self._popNodeFromTargetFringeToExpand()
+
+            for tmpnode in self.fringe:
+                for tmpnode2 in self.target_fringe:
+                    if tmpnode.state == tmpnode2.state:
+                        return '\n\n'.join(reversed(tmpnode.state_path)) \
+                            + '\n\n' \
+                            + '\n\n'.join(tmpnode2.state_path)
+
+            # states1 = set(n.state for n in self.fringe)
+            # states2 = set(n.state for n in self.target_fringe)
+            # istates = states1.intersection(states2)
+            # if istates:
+            #     state = istates.pop()
+            #     return
+
+            self.fringe += self._expand(node)
+            self.target_fringe += self._expand(node2)

@@ -11,11 +11,14 @@
 целевому состоянию
 """
 
+import hashlib
 from dataclasses import dataclass
 from typing import List, Dict, Tuple
-from structures.base import State, Action, Problem, Sucessor
-from structures.searches.tree import DepthTreeSearch, WideTreeSearch,\
-    LimitedDepthTreeSearch
+from structures.base import State, Action, ProblemWithKnownTarget, Sucessor
+from structures.searches.tree import TwoWayWideTreeSearch
+# from structures.searches.tree import DepthTreeSearch
+# from structures.searches.tree import WideTreeSearch
+# from structures.searches.tree import LimitedDepthTreeSearch
 from copy import deepcopy
 
 # from time import sleep
@@ -37,6 +40,10 @@ class Card():
 class State8(State):
     """ состояние - поле 3 на 3 """
     field: Dict[Tuple[int, int], Card]
+
+    def __hash__(self):
+        s = str(self)
+        return int(hashlib.md5(s.encode('utf-8')).hexdigest(), 16)
 
     def __str__(self):
         result = ''
@@ -76,16 +83,13 @@ class Action8(Action):
     """ То, что переставляется """
 
 
-class Problem8(Problem):
+class Problem8(ProblemWithKnownTarget):
     """
         Задача нахождения оптимального набора действий для игры в 8
     """
     def __init__(self, initial_state: State8, target_state: State8):
         self.initial_state = initial_state
         self.target_state = target_state
-
-    def isGoalReachedForState(self, state: State8) -> bool:
-        return state == self.target_state
 
     @staticmethod
     def _findEmptyPosition(state):
@@ -148,6 +152,6 @@ target_state = State8(field={
 LOG.info(f'target_state=\n{target_state}')
 
 p = Problem8(initial_state=initial_state, target_state=target_state)
-ts = LimitedDepthTreeSearch(max_depth=10, problem=p, logger=LOG)
+ts = TwoWayWideTreeSearch(problem=p, logger=LOG)
 
 print(ts.solution)
