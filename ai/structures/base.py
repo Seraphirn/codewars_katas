@@ -127,4 +127,4 @@ class Node:
             result.append(str(node.state))
             node = node.parent_node
 
-        return result
+        return list(reversed(result))

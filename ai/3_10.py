@@ -15,9 +15,9 @@ import hashlib
 from dataclasses import dataclass
 from typing import List, Dict, Tuple
 from structures.base import State, Action, ProblemWithKnownTarget, Sucessor
-from structures.searches.tree import TwoWayWideTreeSearch
+# from structures.searches.tree import TwoWayWideTreeSearch
 # from structures.searches.tree import DepthTreeSearch
-# from structures.searches.tree import WideTreeSearch
+from structures.searches.tree import WideTreeSearch
 # from structures.searches.tree import LimitedDepthTreeSearch
 from copy import deepcopy
 
@@ -48,16 +48,9 @@ class State8(State):
     def __str__(self):
         result = ''
         for i, c in enumerate(self.field.values()):
-            result += str(c.number) if c is not None else 'X'
+            result += str(c.number) if c is not None else ' '
             result += '\n' if i % 3 == 2 else ','
         return result[:-1]
-        # return '\n'.join(
-        #     ','.join(
-        #         str(c.number) if c is not None else 'X'
-        #         for c in self.field.values()[i:i+3]
-        #     )
-        #     for i in range(3)
-        # )
 
 
 @dataclass
@@ -152,6 +145,6 @@ target_state = State8(field={
 LOG.info(f'target_state=\n{target_state}')
 
 p = Problem8(initial_state=initial_state, target_state=target_state)
-ts = TwoWayWideTreeSearch(problem=p, logger=LOG)
+ts = WideTreeSearch(problem=p, logger=LOG, graph_mode=True)
 
 print(ts.solution)

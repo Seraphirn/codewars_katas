@@ -13,8 +13,7 @@
 from dataclasses import dataclass
 from typing import List
 from structures.base import State, Action, Problem, Sucessor
-from structures.searches.tree import TreeSearchInterface, WideSearchMixin, \
-    SimpleExpandMixin, InheritMixinMetaClass
+from structures.searches.tree import WideTreeSearch, TwoWayWideTreeSearch
 
 # from time import sleep
 
@@ -51,6 +50,10 @@ class Coast:
             boats=-self.boats,
         )
 
+    def __str__(self):
+        return 'm' * self.missionaries + 'k' * self.kannibals \
+            + 'b' * self.boats
+
 
 @dataclass
 class MKState(State):
@@ -61,6 +64,9 @@ class MKState(State):
 
     right: Coast
     """ Правый берег """
+
+    def __str__(self):
+        return str(self.left) + ' ~~~ ' + str(self.right)
 
 
 @dataclass
@@ -105,6 +111,12 @@ class MissionariesAliveProblem(Problem):
             left=Coast(missionaries=missionaries, kannibals=kannibals,
                        boats=1),
             right=Coast(missionaries=0, kannibals=0)
+        )
+
+        self.target_state = MKState(
+            right=Coast(missionaries=missionaries, kannibals=kannibals, 
+                        boats=1),
+            left=Coast(missionaries=0, kannibals=0)
         )
 
         # 0..KANNIBALS_COUNT
@@ -172,11 +184,11 @@ class MissionariesAliveProblem(Problem):
 
 
 # class TreeSearch(TreeSearchInterface, WideSearchMixin, SimpleExpandMixin):
-class TreeSearch(WideSearchMixin, SimpleExpandMixin, TreeSearchInterface):
-    pass
+# class TreeSearch(WideSearchMixin, SimpleExpandMixin, TreeSearchInterface):
+#     pass
 
 
 p = MissionariesAliveProblem(kannibals=3, missionaries=3)
-ts = TreeSearch(problem=p, logger=LOG)
+ts = TwoWayWideTreeSearch(problem=p, logger=LOG)
 
 print(ts.solution)

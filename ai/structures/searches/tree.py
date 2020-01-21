@@ -5,10 +5,12 @@ from ..base import Problem, Solution, Node, ProblemWithKnownTarget
 class WideTreeSearch():
 
     def __init__(self, problem: Problem, fringe: list = [],
-                 *, logger: object):
+                 *, logger: object, graph_mode: bool = False):
         self.problem = problem
         self.fringe = fringe
         self.logger = logger
+        self.graph_mode = graph_mode
+        self.closed_list = []
 
     @property
     def solution(self) -> Solution:
@@ -26,7 +28,7 @@ class WideTreeSearch():
                 raise Exception('No solution')
             node = self._popNodeFromFringeToExpand()
             if self.problem.isGoalReachedForState(node.state):
-                return node.solution
+                return '\n\n'.join(node.state_path)
             self.fringe += self._expand(node)
 
     def _popNodeFromFringeToExpand(self):
@@ -35,6 +37,12 @@ class WideTreeSearch():
     def _expand(self, node: Node):
         self.logger.info(f'Expand: \n{node.state}, dep={node.depth}')
         result = []
+        if self.graph_mode:
+            if node.state in self.closed_list:
+                return result
+            else:
+                self.closed_list.append(node.state)
+
         sucessors = self.problem.sucessorFunction(node.state)
         for s in sucessors:
             result.append(
@@ -94,7 +102,6 @@ class TwoWayWideTreeSearch(WideTreeSearch):
                 depth=0
             )
         )
-        # import pdb; pdb.set_trace()
         while True:
             if not self.fringe or not self.target_fringe:
                 raise Exception('No solution')
@@ -104,16 +111,9 @@ class TwoWayWideTreeSearch(WideTreeSearch):
             for tmpnode in self.fringe:
                 for tmpnode2 in self.target_fringe:
                     if tmpnode.state == tmpnode2.state:
-                        return '\n\n'.join(reversed(tmpnode.state_path)) \
+                        return '\n\n'.join(tmpnode.state_path) \
                             + '\n\n' \
-                            + '\n\n'.join(tmpnode2.state_path)
-
-            # states1 = set(n.state for n in self.fringe)
-            # states2 = set(n.state for n in self.target_fringe)
-            # istates = states1.intersection(states2)
-            # if istates:
-            #     state = istates.pop()
-            #     return
+                            + '\n\n'.join(reversed(tmpnode2.state_path))
 
             self.fringe += self._expand(node)
             self.target_fringe += self._expand(node2)
